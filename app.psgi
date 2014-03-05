@@ -20,15 +20,18 @@ use Plack::App::File;
 use Plack::App::URLMap;
 use Plack::Middleware::Assets;
 use Plack::Middleware::Runtime;
+use Plack::Middleware::MCLess;
 use Plack::Middleware::ReverseProxy;
 use Plack::Middleware::Session::Cookie;
 use Plack::Middleware::ServerStatus::Lite;
 
 # explicitly call ->to_app on every Plack::App::* for performance
 my $app = Plack::App::URLMap->new;
-$app->map( '/static/' => Plack::App::File->new( root => 'root/static' )->to_app );
+$app->map(
+    '/static/' => Plack::App::File->new( root => 'root/static' )->to_app );
 $app->map( '/favicon.ico' =>
-        Plack::App::File->new( file => 'root/static/icons/favicon.ico' )->to_app );
+        Plack::App::File->new( file => 'root/static/icons/favicon.ico' )
+        ->to_app );
 $app->map( '/' => MetaCPAN::Web->psgi_app );
 $app = $app->to_app;
 
@@ -75,9 +78,39 @@ $app = Plack::Middleware::Assets->wrap(
             toolbar
             github
             contributors
+            dropdown
+            bootstrap/bootstrap-dropdown
+            bootstrap/bootstrap-collapse
+            bootstrap/bootstrap-tooltip
+            bootstrap-slidepanel
             )
     ],
 );
+
+use CHI;
+
+if ( !$ENV{PLACK_ENV} || $ENV{PLACK_ENV} ne 'development' ) {
+
+    # Only need for live
+    my $cache = CHI->new(
+        driver   => 'File',
+        root_dir => '/tmp/less.cache'
+    );
+
+    # Wrap up to serve lessc parsed files
+    $app = Plack::Middleware::MCLess->wrap(
+        $app,
+        cache     => $cache,
+        cache_ttl => "60 minutes",
+        root      => "root/static",
+        files     => [
+            map {"root/static/less/$_.less"}
+                qw(
+                style
+                )
+        ],
+    );
+}
 
 Plack::Middleware::ReverseProxy->wrap(
     sub {

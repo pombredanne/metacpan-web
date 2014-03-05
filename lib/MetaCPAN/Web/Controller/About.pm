@@ -24,4 +24,19 @@ sub sponsors : Local {
     $c->stash( template => 'about/sponsors.html' );
 }
 
+sub development : Local {
+    my ( $self, $c ) = @_;
+    $c->stash( template => 'about/development.html' );
+}
+
+sub missing_modules : Local {
+    my ( $self, $c ) = @_;
+    $c->stash( template => 'about/missing_modules.html' );
+}
+
+sub faq : Local {
+    my ( $self, $c ) = @_;
+    $c->stash( template => 'about/faq.html' );
+}
+
 1;

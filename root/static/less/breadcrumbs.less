@@ -1,0 +1,50 @@
+.breadcrumbs {
+
+    > a, > span, > div {
+        font-weight: bold;
+        font-size: 1.2em;
+    }
+
+    a.latest i {
+        margin: 2px 5px 2px 0;
+    }
+
+    margin-bottom: 5px;
+    .dropdown a {
+        text-decoration: none;
+        font-size: 0.8em;
+    }
+
+    .release {
+    	position: relative;
+    	display: inline;
+
+    	select {
+    		position: absolute;
+    		left: -0.5em;
+    		width: 1.5em;
+    		height: 1.5em;
+    		opacity: 0;
+    	}
+
+        select.extend {
+            width: 100%;
+            left: 0;
+        }
+
+        .dropdown .caret {
+            margin-left: auto;
+            margin-right: 2px;
+        }
+
+        &.status-cpan .release-name {
+            color: #999;
+        }
+        &.status-backpan .release-name {
+            color: #a00;
+        }
+        &.maturity-developer .release-name {
+            color: #ff4500;
+        }
+    }
+}

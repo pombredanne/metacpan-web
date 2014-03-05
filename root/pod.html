@@ -1,0 +1,45 @@
+<% twitter_card_inc = 'inc/twitter/module.html' %>
+<%# NOTE: canonical set in controller %>
+<% meta_description = module.abstract %>
+<% title = module.documentation _ (module.abstract ? ' - ' _ module.abstract : ''); rss = 'distribution/' _ module.distribution %>
+<% INCLUDE inc/breadcrumbs.html %>
+
+
+<ul class="nav nav-list slidepanel"  itemscope itemtype="http://schema.org/SoftwareApplication">
+  <li class="visible-phone search">
+    <form action="<% IF req.uri.path == '/mirrors'; req.uri.path; ELSE; '/search'; END %>">
+      <input type="search" placeholder="Search" name="q"><input type="submit" class="hidden">
+    </form>
+  </li>
+  <li class="nav-header"><span class="relatize"><% module.date.dt_http %></span></li>
+  <li>
+    <div>
+      <a href="/source/<% module.author %>/<% module.release %>/<% module.path %>">Source</a>
+      (<a href="<% api_external %>/source/<% module.author %>/<% module.release %>/<% module.path %>">raw</a>)
+    </div>
+  </li>
+  <li>
+    <div>
+      <a href="/source/<% module.author %>/<% module.release %>/<% module.path.split("/").splice(0,-1).join("/") %>">Browse</a>
+      (<a href="<% api_external %>/source/<% module.author %>/<% module.release %>/">raw</a>)
+    </div>
+  </li>
+  <% PROCESS inc/release-info.html %>
+  <li class="nav-header">Activity</li>
+  <% INCLUDE inc/activity.html query = 'distribution=' _ release.distribution %>
+  <% INCLUDE inc/release-tools.html %>
+</ul>
+
+<div class="pull-right">
+<div class="pull-right"><% INCLUDE inc/author-pic.html author = author %></div>
+<% INCLUDE inc/dependencies.html dependencies = release.dependency %>
+</div>
+<% IF req.cookies.hideTOC.value %><style>#index { display:none}</style><% END %>
+<a name="___pod"></a>
+<div class="pod content">
+<% IF pod %>
+<% pod.replace(/<pre><code>/, '<pre class="brush: pl; class-name: \'highlight\'; toolbar: false; gutter: false; metacpan-verbatim">').replace(/<\/code><\/pre>/, '</pre>') | none %>
+<% ELSE %>
+<p class="pod-error">Error rendering POD for <code><% module.name %></code> - <% pod_error %></p>
+<% END %>
+</div>

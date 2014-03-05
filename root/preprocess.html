@@ -26,8 +26,10 @@ profiles = {
   hackernews = { name = 'Hacker News', url = 'http://news.ycombinator.com/user?id=%s' },
   identica = { name = 'Identi.ca', url = 'http://identi.ca/%s' },
   klout = { name = 'Klout', url = 'http://klout.com/#/%s' },
+  lanyrd = { name = 'Lanyrd', url = 'http://lanyrd.com/profile/%s' },
   lastfm = { name = 'LastFM', url = 'http://www.last.fm/user/%s' },
   linkedin = { name = 'LinkedIn', url = 'http://www.linkedin.com/in/%s' },
+  meetup = { name = 'Meetup', url = 'http://www.meetup.com/members/%s' },
   myspace = { name = 'MySpace', url = 'http://www.myspace.com/%s' },
   nerdability = { name = 'NerdAbility', url = 'https://nerdability.com/user/%s' },
   newsblur  = { name = 'Newsblur', url = 'http://%s.newsblur.com' },
@@ -41,7 +43,9 @@ profiles = {
   slideshare = { name = 'SlideShare', url = 'http://www.slideshare.net/%s' },
   sourceforge = { name = 'SourceForge', url = 'http://sourceforge.net/users/%s' },
   speakerdeck = { name = 'SpeakerDeck', url = 'https://speakerdeck.com/u/%s' },
+  stackexchange = { name = 'StackExchange', url = 'http://stackexchange.com/users/%s?tab=accounts' },
   stackoverflow = { name = 'StackOverflow', url = 'http://stackoverflow.com/users/%s/' },
+  stackoverflowcareers = { name = 'Stack Overflow Careers', url = 'http://careers.stackoverflow.com/%s' },
   steam = { name = 'Steam', url = 'http://steamcommunity.com/id/%s' },
   stumbleupon = { name = 'StumbleUpon', url = 'http://www.stumbleupon.com/stumbler/%s/' },
   tumblr = { name = 'Tumblr', url = 'http://%s.tumblr.com/' },
@@ -51,20 +55,44 @@ profiles = {
   };
 -%>
 <%-
-  MACRO link_to_file(file) BLOCK;
-  title = file.documentation || file.path;
-  IF file.status == "latest"
-    && file.documentation
-    && file.authorized
-    && file.indexed
-    && file.module.grep(->(module){ module.authorized && module.indexed });
-    path = file.documentation;
-  ELSE;
-    path = [file.author, file.release, file.path].join("/");
+
+  MACRO link_to_file(file, linktext) BLOCK;
+    title = file.documentation || file.path;
+    # If there is pod for this file...
+    IF file.documentation || file.pod_lines.size || file.module.grep(->(module){ module.associated_pod }).size;
+      IF file.status == "latest";
+        # If it's a PAUSE-indexed module (02packages)...
+        IF file.documentation
+        && file.authorized
+        && file.indexed
+        && file.module.grep(->(module){ module.authorized && module.indexed });
+          # Use /pod/$name.
+          path = file.documentation;
+        ELSE;
+          # Use distribution (version-independent) url.
+            path = ['distribution', file.distribution, file.path].join('/');
+        END;
+      # Else use versioned url.
+      ELSE;
+        path = ['release', file.author, file.release, file.path].join("/");
+      END;
+      %><a href="/pod/<% path %>"><%- linktext || title %></a><%
+    # Else show source.
+    ELSE;
+      link_to_source(file, linktext) | none;
+    END;
   END;
-%>
-<a href="/module/<% path %>"><%- title %></a>
-<%- END
+
+  MACRO link_to_source(file, linktext) BLOCK;
+    # NOTE: The 'package' attribute is fabricated in the release template.
+    path = ['source', file.author, file.release, file.path].join('/');
+    # Append "#P${package}" if we have a package name.
+    IF file.package;
+      path = path _  '#P' _ file.package;
+    END
+    %><a href="/<% path %>"><% linktext || file.package || file.path %></a><%
+  END;
+
   # protocols = {
   #   "bzr" = 10,
   #   "https" = 11742,

@@ -19,7 +19,7 @@
       return {
         render: function() {
           $('#author-result-loading').hide();
-          $('#author-results').html('<ul class="authors">');
+          $('.author-results').html('<ul class="authors">');
           var el = $('ul.authors');
           var rows = [];
           $.each(result, function(idx, row) {
@@ -41,6 +41,7 @@
               +'('+ row.contributions +' '+ (row.contributions === 1 ? 'commit' : 'commits') +')</li>'
             );
           })
+          $('#author-count').html('Number of contributors: ' + rows.length);
         },
 
         fetch: function(url) {
@@ -92,7 +93,8 @@
 </script>
 <% PROCESS inc/about-bar.html %>
 
-<div class="content">
+<div class="content about">
   <img src="/static/icons/busy.gif" id="author-result-loading" />
-  <div id="author-results"></div>
+  <div id="author-count"></div>
+  <div class="author-results"></div>
 </div>

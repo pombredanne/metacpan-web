@@ -77,10 +77,34 @@ Attempt to render a view, if needed.
 
 sub end : ActionClass('RenderView') {
     my ( $self, $c ) = @_;
+
+    # Pass through to the front end
+    if ( $ENV{PLACK_ENV} && $ENV{PLACK_ENV} eq 'development' ) {
+        $c->stash->{PLACK_ENV} = 'development';
+    }
     $c->stash->{req}        = $c->req;
     $c->stash->{api}        = $c->config->{api};
     $c->stash->{api_secure} = $c->config->{api_secure} || $c->config->{api};
+    $c->stash->{api_external}
+        = $c->config->{api_external} || $c->config->{api};
+    $c->stash->{api_external_secure}
+        = $c->config->{api_external_secure} || $c->config->{api_external}
+        || $c->stash->{api_secure};
+    $c->stash->{oauth_prefix} = $c->stash->{api_external_secure}
+      . '/oauth2/authorize?client_id=' . $c->config->{consumer_key};
     $c->res->header( Vary => 'Cookie' );
+
+    unless (
+        # Already have something set for fastly
+        $c->res->header('Surrogate-Control') ||
+
+        # We'll use Last-Modified for now
+        $c->res->header('Last-Modified')
+        )
+    {
+        # Make sure fastly doesn't cache anything by accident
+        $c->res->header( 'Surrogate-Control' => 'no-cache' );
+    }
 }
 
 =head1 AUTHOR

@@ -1,7 +1,27 @@
 <% UNLESS title; title = 'MetaCPAN About'; END %>
-<div class="account-bar">
-    <a href="/about"<% IF req.action == 'about' %> class="active"<% END %>>About MetaCPAN</a>
-    <a href="/about/resources"<% IF req.action == 'about/resources' %> class="active"<% END %>>Resources</a>
-    <a href="/about/contributors"<% IF req.action == 'about/contributors' %> class="active"<% END %>>Contributors</a>
-    <a href="/about/sponsors"<% IF req.action == 'about/sponsors' %> class="active"<% END %>>Sponsors</a>
+<div class="nav-list tabbable tabs-left about-bar slidepanel">
+    <ul class="nav nav-tabs">
+      <li class="visible-phone search">
+      <form action="<% IF req.uri.path == '/mirrors'; req.uri.path; ELSE; '/search'; END %>">
+        <input type="search" placeholder="Search" name="q"><input type="submit" class="hidden">
+      </form>
+    </li>
+    <li<% IF req.action == 'about' %> class="active"<% END %>>
+        <a href="/about">About MetaCPAN</a>
+    </li>
+    <li<% IF req.action == 'about/resources' %> class="active"<% END %>>
+        <a href="/about/resources">Contact</a>
+    </li>
+    <li<% IF req.action == 'about/faq' %> class="active"<% END %>>
+        <a href="/about/faq">FAQ</a>
+    </li>
+    <li<% IF req.action == 'about/sponsors' %> class="active"<% END %>>
+        <a href="/about/sponsors">Sponsors</a>
+    </li>
+    <li<% IF req.action == 'about/contributors' %> class="active"<% END %>>
+        <a href="/about/contributors">Contributors</a>
+    </li>
+    <li<% IF req.action == 'about/missing_modules' %> class="active"<% END %>>
+        <a href="/about/missing_modules">Missing Modules</a>
+    </li>
 </div>
